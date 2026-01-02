@@ -1,0 +1,25 @@
+server:
+  port: 8888
+  host: "0.0.0.0"
+
+database:
+  type: "postgresql"
+  host: "host.docker.internal"
+  port: 5432
+  username: "root"
+  password: "123456"
+  dbname: "blog"
+  pool_size: 10
+
+log:
+  level: "info"
+  file_name_pattern: "{year}-{month}/{date}.log"
+  max_size: 10M
+  max_files: 5
+
+redis:
+  host: "host.docker.internal"
+  port: 6379
+  db: 0
+  password: "123456"
+  pool_size: 10

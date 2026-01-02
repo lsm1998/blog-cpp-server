@@ -1,0 +1,16 @@
+# 忽略构建目录
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# 忽略 IDE 配置
+.idea/
+.vscode/
+.DS_Store
+
+# 忽略 Git
+.git/
+.gitignore
+
+# 忽略 Python 缓存
+__pycache__/
