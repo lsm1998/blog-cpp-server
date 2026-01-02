@@ -4,6 +4,7 @@
 #include <sw/redis++/redis++.h>
 #include <memory>
 #include "cfg/cfg.hpp"
+#include "repository/connection_pool.hpp"
 
 namespace blogserver::server
 {
@@ -14,7 +15,7 @@ namespace blogserver::server
         friend Application;
 
     public:
-        std::shared_ptr<tao::pq::connection_pool> dbConnPool_;
+        std::shared_ptr<repository::ConnectionPool> dbConnPool_;
 
         std::shared_ptr<sw::redis::Redis> redisClient_;
 

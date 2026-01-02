@@ -19,12 +19,9 @@ namespace blogserver::server
                                               dbCfg.port);
         try
         {
-            // 创建连接池
-            const int pool_size = dbCfg.poolSize > 0 ? dbCfg.poolSize : 10;
-            this->dbConnPool_ = tao::pq::connection_pool::create(dbUri);
-            // 设置10秒超时
-            this->dbConnPool_->set_timeout(std::chrono::seconds(10));
-            CK_LOG_INFO("database connection pool created with size {}", pool_size);
+            this->dbConnPool_ = std::make_shared<repository::ConnectionPool>(
+                dbUri, dbCfg.poolSize <= 0 ? 10 : dbCfg.poolSize);
+            CK_LOG_INFO("database connection pool created for {}", dbUri);
         }
         catch (const std::exception& ex)
         {

@@ -3,7 +3,7 @@
 #include "server/server_context.hpp"
 #include "model/user.hpp"
 
-namespace blogserver::service::user
+namespace blogserver::service::users
 {
     class UserService
     {

@@ -1,9 +1,9 @@
 #include <cppkit/json/json_parser.hpp>
-#include "service/user/user.hpp"
+#include "service/users/users.hpp"
 
 #include "cppkit/log/log.hpp"
 
-namespace blogserver::service::user
+namespace blogserver::service::users
 {
     constexpr auto queryUserProfileSql =
         "SELECT id,username,nickname,email,headshot,description,position,area,github,telegram,linkedin,twitter FROM users WHERE username = $1";

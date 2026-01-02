@@ -1,8 +1,8 @@
-#include "api/user/user.hpp"
+#include "api/user/users.hpp"
 
 #include "api/common.hpp"
 
-namespace blogserver::api::user
+namespace blogserver::api::users
 {
     void UserHandler::profile(const HttpRequest& req, HttpResponseWriter& writer) const
     {

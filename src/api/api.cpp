@@ -3,7 +3,7 @@
 #include "server/application.hpp"
 #include "api/tag/tag.hpp"
 #include "api/article/article.hpp"
-#include "api/user/user.hpp"
+#include "api/user/users.hpp"
 #include <functional>
 #include <cppkit/http/server/http_response.hpp>
 #include <cppkit/http/server/router_group.hpp>
@@ -75,7 +75,7 @@ namespace blogserver::api
             const auto user = server.group("/api/user");
             // 权限中间件
             user.use(authMiddleware);
-            auto handler = std::make_shared<user::UserHandler>(app.context_);
+            auto handler = std::make_shared<users::UserHandler>(app.context_);
             user.Get("/:username", [handler](const auto& req, auto& res) { handler->profile(req, res); });
         }
     }
