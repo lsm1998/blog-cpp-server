@@ -1,6 +1,6 @@
 # blog-cpp-server
 
-一个基于 C++20 构建的高性能博客服务器。
+一个基于 C++20 构建的高性能博客服务器，[cppkit](https://github.com/lsm1998/cppkit)库的一次实践项目。
 
 ## 技术栈
 
@@ -141,7 +141,7 @@ make clean
 
 2. 运行服务器:
    ```bash
-   ./blog-cpp-server
+   ./blog-cpp-server -c cfg/app.dev.yaml
    ```
 
 ## 开发
@@ -176,12 +176,4 @@ deploy/Makefile
 - 文件上传与下载
 - 后台管理界面
 - 性能监控与日志系统
-
-## 许可证
-
-MIT License
-
-## 作者
-
-lsm1998
 
