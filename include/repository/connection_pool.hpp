@@ -2,7 +2,7 @@
 
 #include <tao/pq.hpp>
 #include <semaphore>
-
+#include <algorithm>
 #include "cppkit/log/log.hpp"
 
 namespace blogserver::repository
@@ -12,12 +12,15 @@ namespace blogserver::repository
     class ConnectionPool
     {
     public:
-        explicit ConnectionPool(const std::string& uri, const int pool_size = 10, const int timeout = 10) : semaphore_(
-                std::clamp(pool_size, 1, static_cast<int>(MAX_POOL_CAPACITY))), timeout_(timeout)
+        explicit ConnectionPool(const std::string& uri, const int pool_size = 10,
+                                const int socketTimeoutSec = 30,
+                                const int waitTimeoutSec = 3) :
+            semaphore_(std::clamp(pool_size, 1, static_cast<int>(MAX_POOL_CAPACITY))),
+            waitTimeoutSec(waitTimeoutSec)
         {
             this->pool_ = tao::pq::connection_pool::create(uri);
             // 设置超时
-            this->pool_->set_timeout(std::chrono::seconds(timeout_));
+            this->pool_->set_timeout(std::chrono::seconds(socketTimeoutSec));
         }
 
         ConnectionPool(const ConnectionPool&) = delete;
@@ -42,7 +45,7 @@ namespace blogserver::repository
         template <typename... As>
         auto execute(const std::string& sql, As&&... as)
         {
-            acquirePermit(timeout_);
+            acquirePermit(waitTimeoutSec);
             SemaphoreGuard guard{semaphore_};
             return pool_->execute(sql, std::forward<As>(as)...);
         }
@@ -50,7 +53,7 @@ namespace blogserver::repository
         template <typename F>
         void transaction(F&& function)
         {
-            acquirePermit(timeout_);
+            acquirePermit(waitTimeoutSec);
             SemaphoreGuard guard{semaphore_};
 
             // 开启事务
@@ -70,6 +73,6 @@ namespace blogserver::repository
         std::counting_semaphore<MAX_POOL_CAPACITY> semaphore_;
 
         // 超时设置
-        int timeout_{};
+        int waitTimeoutSec{};
     };
 }
