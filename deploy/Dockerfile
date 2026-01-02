@@ -67,9 +67,6 @@ COPY --from=builder /app/build/bin/blog-cpp-server .
 # 复制配置文件
 COPY --from=builder /app/cfg/app.prod.yaml .
 
-# 复制共享库文件
-COPY --from=builder /app/libs_collected/* /usr/lib/
-
 # 暴露端口
 EXPOSE 8888
 
