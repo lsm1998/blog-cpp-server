@@ -43,11 +43,11 @@ namespace blogserver::repository
         }
 
         template <typename... As>
-        auto execute(const std::string& sql, As&&... as)
+        auto execute(std::string_view sql, As&&... as)
         {
             acquirePermit(waitTimeoutSec);
             SemaphoreGuard guard{semaphore_};
-            return pool_->execute(sql, std::forward<As>(as)...);
+            return pool_->execute(sql.data(), std::forward<As>(as)...);
         }
 
         template <typename F>
@@ -63,6 +63,24 @@ namespace blogserver::repository
 
             // 提交事务
             tx->commit();
+        }
+
+        // 动态参数执行辅助函数
+        auto executeDynamic(const std::string_view sql, const std::vector<std::string>& args)
+        {
+            switch (args.size())
+            {
+            case 0: return this->execute(sql);
+            case 1: return this->execute(sql, args[0].c_str());
+            case 2: return this->execute(sql, args[0].c_str(), args[1].c_str());
+            case 3: return this->execute(sql, args[0].c_str(), args[1].c_str(), args[2].c_str());
+            case 4: return this->execute(sql, args[0].c_str(), args[1].c_str(), args[2].c_str(), args[3].c_str());
+            case 5: return this->execute(sql, args[0].c_str(), args[1].c_str(), args[2].c_str(), args[3].c_str(),
+                                         args[4].c_str());
+            case 6: return this->execute(sql, args[0].c_str(), args[1].c_str(), args[2].c_str(), args[3].c_str(),
+                                         args[4].c_str(), args[5].c_str());
+            default: throw std::runtime_error("Too many dynamic parameters for helper.");
+            }
         }
 
     private:

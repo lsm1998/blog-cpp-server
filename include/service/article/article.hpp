@@ -8,6 +8,14 @@
 
 namespace blogserver::service::article
 {
+    struct ArticleListParams
+    {
+        int page{1};
+        int pageSize{10};
+        std::vector<std::string> tagNames{};
+        std::vector<int64_t> tagIds{};
+    };
+
     class ArticleService
     {
     public:
@@ -18,19 +26,19 @@ namespace blogserver::service::article
         ~ArticleService() = default;
 
         // 获取文章列表
-        std::vector<model::Article> ArticleList() const;
+        [[nodiscard]] std::tuple<std::vector<model::Article>, int> getArticleList(ArticleListParams& params) const;
 
         // 获取单篇文章
-        [[nodiscard]] std::optional<model::Article> GetArticleById(int articleId) const;
+        [[nodiscard]] std::optional<model::Article> getArticleById(int articleId) const;
 
         // 创建新文章
-        [[nodiscard]] int64_t CreateArticle(const model::Article& article) const;
+        [[nodiscard]] int64_t createArticle(const model::Article& article) const;
 
         // 更新文章
-        void UpdateArticle(const model::Article& article);
+        void updateArticle(const model::Article& article);
 
         // 删除文章
-        void DeleteArticle(std::vector<int64_t> articleId);
+        void deleteArticle(std::vector<int64_t> articleId);
 
     private:
         server::ServerContext& ctx;

@@ -1,6 +1,7 @@
 #include "api/article/article.hpp"
 #include "api/common.hpp"
 #include "cppkit/json/json_parser.hpp"
+#include "cppkit/json/json.hpp"
 #include "cppkit/log/log.hpp"
 
 namespace blogserver::api::article
@@ -9,8 +10,28 @@ namespace blogserver::api::article
     {
         try
         {
-            const auto articles = this->articleService_.ArticleList();
-            ok(writer, articles);
+            service::article::ArticleListParams params;
+            const auto page = req.getQuery("page");
+            const auto pageSize = req.getQuery("pageSize");
+            const auto tag = req.getQuery("tag");
+            if (!page.empty())
+            {
+                params.page = static_cast<int>(std::stoull(page));
+            }
+            if (!pageSize.empty())
+            {
+                params.pageSize = static_cast<int>(std::stoull(pageSize));
+            }
+            if (!tag.empty())
+            {
+                params.tagNames.push_back(tag);
+            }
+            const auto articles = this->articleService_.getArticleList(params);
+            auto [articleList, total] = articles;
+            auto result = cppkit::json::Json();
+            result["list"] = articleList;
+            result["total"] = total;
+            ok(writer, result);
         }
         catch (const std::exception& e)
         {
@@ -24,7 +45,7 @@ namespace blogserver::api::article
         const auto id = req.getParam("id");
         try
         {
-            auto opt = this->articleService_.GetArticleById(static_cast<int>(std::stoull(id)));
+            auto opt = this->articleService_.getArticleById(static_cast<int>(std::stoull(id)));
             if (opt.has_value())
             {
                 ok(writer, "Success", opt.value());
@@ -45,7 +66,7 @@ namespace blogserver::api::article
     {
         auto body = req.readBody();
         const auto article = cppkit::json::fromJson<model::Article>(std::string(body.begin(), body.end()));
-        const auto result = this->articleService_.CreateArticle(article);
+        const auto result = this->articleService_.createArticle(article);
         ok(writer, result);
     }
 
