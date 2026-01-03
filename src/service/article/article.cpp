@@ -1,6 +1,7 @@
 #include "service/article/article.hpp"
 #include "cppkit/array.hpp"
 #include "cppkit/strings.hpp"
+#include <tuple>
 
 namespace blogserver::service::article
 {
@@ -41,17 +42,17 @@ namespace blogserver::service::article
         ArticleListParams& params) const
     {
         const auto offset = (params.page - 1) * params.pageSize;
+        std::vector<model::dto::ArticleItemDto> articles;
 
         if (!params.tagNames.empty())
         {
             params.tagIds = getTagIdsByNames(this->ctx, params.tagNames);
             if (params.tagIds.empty()) // 没有匹配的标签，直接返回空列表
             {
-                return {{}, 0};
+                return {articles, 0};
             }
         }
 
-        std::vector<model::dto::ArticleItemDto> articles;
         std::vector<std::string> args{};
 
         std::ostringstream whereSql;
