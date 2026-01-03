@@ -14,6 +14,7 @@ namespace blogserver::api::article
             const auto page = req.getQuery("page");
             const auto pageSize = req.getQuery("pageSize");
             const auto tag = req.getQuery("tag");
+            const auto keyword = req.getQuery("keyword");
             if (!page.empty())
             {
                 params.page = static_cast<int>(std::stoull(page));
@@ -25,6 +26,10 @@ namespace blogserver::api::article
             if (!tag.empty())
             {
                 params.tagNames.push_back(tag);
+            }
+            if (!keyword.empty())
+            {
+                params.keyword = keyword;
             }
             const auto articles = this->articleService_.getArticleList(params);
             auto [articleList, total] = articles;

@@ -42,28 +42,42 @@ namespace blogserver::service::article
     {
         const auto offset = (params.page - 1) * params.pageSize;
 
-        std::vector<model::dto::ArticleItemDto> articles;
-        std::vector<std::string> args{};
-
-        // 先根据tagNames获取tagIds
         if (!params.tagNames.empty())
         {
             params.tagIds = getTagIdsByNames(this->ctx, params.tagNames);
-            if (params.tagIds.empty())
+            if (params.tagIds.empty()) // 没有匹配的标签，直接返回空列表
             {
-                return {};
+                return {{}, 0};
             }
         }
 
-        std::ostringstream listSql;
-        std::ostringstream countSql;
-        listSql << "SELECT id,title,tags,created_at,summary FROM article";
-        countSql << "SELECT COUNT(*) FROM article";
+        std::vector<model::dto::ArticleItemDto> articles;
+        std::vector<std::string> args{};
+
+        std::ostringstream whereSql;
+        int paramIdx = 1;
+        bool hasWhere = false;
+
+        auto appendCondition = [&](const std::string& condition)
+        {
+            if (!hasWhere)
+            {
+                whereSql << " WHERE ";
+                hasWhere = true;
+            }
+            else
+            {
+                whereSql << " AND ";
+            }
+            whereSql << condition;
+        };
 
         if (!params.tagIds.empty())
         {
-            listSql << " WHERE tags && $" << 1 + args.size();
-            countSql << " WHERE tags && $" << 1 + args.size();
+            std::ostringstream cond;
+            cond << "tags && $" << paramIdx++;
+            appendCondition(cond.str());
+
             const auto tagIdsStr = cppkit::join(cppkit::arrayMap(params.tagIds, [&](const int64_t tagId)
             {
                 return std::to_string(tagId);
@@ -71,19 +85,44 @@ namespace blogserver::service::article
             args.emplace_back("{" + tagIdsStr + "}");
         }
 
-        // 获取总数
+        if (!params.keyword.empty())
+        {
+            std::ostringstream cond;
+            cond << "(title ILIKE $" << paramIdx << " OR content ILIKE $" << paramIdx << ")";
+            appendCondition(cond.str());
+
+            paramIdx++;
+            args.emplace_back("%" + params.keyword + "%");
+        }
+
+        std::string countSqlStr = "SELECT COUNT(*) FROM article" + whereSql.str();
+
         int total = 0;
-        const auto countResult = this->ctx.dbConnPool_->executeDynamic(countSql.str(), args);
+        const auto countResult = this->ctx.dbConnPool_->executeDynamic(countSqlStr, args);
         if (!countResult.empty())
         {
             total = countResult[0]["count"].as<int>();
         }
 
-        listSql << " ORDER BY created_at DESC LIMIT $" << 1 + args.size() << " OFFSET $" << 2 + args.size() << ";";
+        // 如果总数为 0，没必要查列表了，直接返回
+        if (total == 0)
+        {
+            return {articles, 0};
+        }
 
+        std::ostringstream listSql;
+        listSql << "SELECT id, title, tags, created_at, summary FROM article"
+            << whereSql.str()
+            << " ORDER BY created_at DESC";
+
+        listSql << " LIMIT $" << paramIdx++;
         args.push_back(std::to_string(params.pageSize));
+
+        listSql << " OFFSET $" << paramIdx++;
         args.push_back(std::to_string(offset));
+
         const auto result = this->ctx.dbConnPool_->executeDynamic(listSql.str(), args);
+
         for (const auto& row : result)
         {
             model::Article article;
@@ -92,10 +131,12 @@ namespace blogserver::service::article
             article.title = row["title"].as<std::string>();
             article.tags = row["tags"].as<std::vector<std::int64_t>>();
             article.created_at = row["created_at"].as<std::string>();
+
             model::dto::ArticleItemDto articleDto;
             articleDto.setInfo(article);
             articles.push_back(articleDto);
         }
+
         return {articles, total};
     }
 
@@ -134,11 +175,9 @@ namespace blogserver::service::article
 
     void ArticleService::updateArticle(const model::Article& article)
     {
-
     }
 
     void ArticleService::deleteArticle(std::vector<int64_t> articleId)
     {
-
     }
 }

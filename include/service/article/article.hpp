@@ -13,6 +13,7 @@ namespace blogserver::service::article
     {
         int page{1};
         int pageSize{10};
+        std::string keyword{};
         std::vector<std::string> tagNames{};
         std::vector<int64_t> tagIds{};
     };

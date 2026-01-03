@@ -2,6 +2,8 @@
 CREATE
 DATABASE blog
 
+-- 开启 pg_trgm 扩展
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- 创建 article表
 create table article
@@ -15,6 +17,11 @@ create table article
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 对 title 建立索引
+CREATE INDEX idx_article_title_trgm ON article USING GIN (title gin_trgm_ops);
+
+-- 对 content 建立索引
+CREATE INDEX idx_article_content_trgm ON article USING GIN (content gin_trgm_ops);
 
 -- 创建 tag表
 create table tag
