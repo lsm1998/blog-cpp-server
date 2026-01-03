@@ -9,7 +9,7 @@ create table article
     id         SERIAL PRIMARY KEY,
     title      TEXT      NOT NULL,
     content    TEXT      NOT NULL,
-    author     TEXT      NOT NULL,
+    summary    TEXT      NOT NULL,
     tags       INTEGER[]     NOT NULL DEFAULT '{}',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -26,8 +26,8 @@ create table tag
 );
 
 
--- 创建 user表
-create table "user"
+-- 创建 users表
+create table "users"
 (
     id          SERIAL PRIMARY KEY,
     username    TEXT      NOT NULL UNIQUE,
@@ -41,6 +41,7 @@ create table "user"
     telegram    TEXT      NOT NULL DEFAULT '',
     linkedin    TEXT      NOT NULL DEFAULT '',
     twitter     TEXT      NOT NULL DEFAULT '',
+    tech_stack  TEXT[]      NOT NULL DEFAULT '{}',
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

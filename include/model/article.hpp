@@ -10,12 +10,12 @@ namespace blogserver::model
         int64_t id{};
         std::string title{};
         std::string content{};
-        std::string author{};
+        std::string summary{};
         std::vector<int64_t> tags{};
         std::string created_at{};
         std::string updated_at{};
     };
 
     REFLECT(blogserver::model::Article, FIELD(id), FIELD(title), FIELD(content),
-            FIELD(author), FIELD(created_at), FIELD(updated_at), FIELD(tags))
+            FIELD(summary), FIELD(created_at), FIELD(updated_at), FIELD(tags))
 } // namespace blogserver::server

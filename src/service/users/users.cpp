@@ -6,7 +6,7 @@
 namespace blogserver::service::users
 {
     constexpr auto queryUserProfileSql =
-        "SELECT id,username,nickname,email,headshot,description,position,area,github,telegram,linkedin,twitter FROM users WHERE username = $1";
+        "SELECT id,username,nickname,email,headshot,description,position,area,github,telegram,linkedin,twitter,tech_stack FROM users WHERE username = $1";
 
     std::optional<model::User> UserService::getUserProfile(std::string_view username) const
     {
@@ -17,8 +17,8 @@ namespace blogserver::service::users
             const auto cachedData = ctx.redisClient_->get(redisKey);
             if (cachedData.has_value())
             {
-                auto user = cppkit::json::fromJson<model::User>(cachedData.value());
-                return user;
+                // auto user = cppkit::json::fromJson<model::User>(cachedData.value());
+                // return user;
             }
             // 从数据库中获取用户资料
             const auto result = this->ctx.dbConnPool_->execute(queryUserProfileSql, username);
@@ -40,6 +40,7 @@ namespace blogserver::service::users
             user.telegram = row["telegram"].as<std::string>();
             user.linkedin = row["linkedin"].as<std::string>();
             user.twitter = row["twitter"].as<std::string>();
+            user.techStack = row["tech_stack"].as<std::vector<std::string>>();
             // 将用户资料缓存到redis
             const auto userJson = cppkit::json::stringify(user);
             ctx.redisClient_->set(redisKey, userJson);

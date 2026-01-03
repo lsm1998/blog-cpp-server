@@ -19,9 +19,10 @@ namespace blogserver::model
         std::string telegram{};
         std::string linkedin{};
         std::string twitter{};
+        std::vector<std::string> techStack{};
     };
 
     REFLECT(blogserver::model::User, FIELD(id), FIELD(username), FIELD(nickname), FIELD(email),
             FIELD(headshot), FIELD(description), FIELD(position), FIELD(area),
-            FIELD(github), FIELD(telegram), FIELD(linkedin), FIELD(twitter))
+            FIELD(github), FIELD(telegram), FIELD(linkedin), FIELD(twitter), FIELD(techStack))
 } // namespace blogserver::model

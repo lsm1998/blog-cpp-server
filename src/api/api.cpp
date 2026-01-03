@@ -16,11 +16,9 @@ namespace blogserver::api
     {
         const auto authHeader = req.getHeader("Authorization");
         const auto accessKey = req.getHeader("X-Access-Key");
-        if (authHeader.empty() || accessKey.empty())
+        if (authHeader.empty() || accessKey.empty()) // 简单验证 不为空即可
         {
-            res.setStatusCode(cppkit::http::HTTP_UNAUTHORIZED);
-            res.setContentType("application/json");
-            res.write(R"({"error":"Unauthorized"})");
+            error(res,R"({"error":"Unauthorized"})", cppkit::http::HTTP_UNAUTHORIZED );
             return;
         }
 
