@@ -23,6 +23,9 @@ CREATE INDEX idx_article_title_trgm ON article USING GIN (title gin_trgm_ops);
 -- 对 content 建立索引
 CREATE INDEX idx_article_content_trgm ON article USING GIN (content gin_trgm_ops);
 
+-- 对 summary 建立索引
+CREATE INDEX idx_article_summary_trgm ON article USING GIN (summary gin_trgm_ops);
+
 -- 创建 tag表
 create table tag
 (

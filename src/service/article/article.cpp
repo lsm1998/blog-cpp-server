@@ -88,7 +88,7 @@ namespace blogserver::service::article
         if (!params.keyword.empty())
         {
             std::ostringstream cond;
-            cond << "(title ILIKE $" << paramIdx << " OR content ILIKE $" << paramIdx << ")";
+            cond << "(title ILIKE $" << paramIdx << " OR summary ILIKE $" << paramIdx << ")";
             appendCondition(cond.str());
 
             paramIdx++;
