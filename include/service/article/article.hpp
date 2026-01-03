@@ -5,6 +5,7 @@
 #include "server/server_context.hpp"
 #include "model/article.hpp"
 #include "repository/article/article_repo.h"
+#include "model/dto/article.hpp"
 
 namespace blogserver::service::article
 {
@@ -26,10 +27,10 @@ namespace blogserver::service::article
         ~ArticleService() = default;
 
         // 获取文章列表
-        [[nodiscard]] std::tuple<std::vector<model::Article>, int> getArticleList(ArticleListParams& params) const;
+        [[nodiscard]] std::tuple<std::vector<model::dto::ArticleItemDto>, int> getArticleList(ArticleListParams& params) const;
 
         // 获取单篇文章
-        [[nodiscard]] std::optional<model::Article> getArticleById(int articleId) const;
+        [[nodiscard]] std::optional<model::dto::ArticleDetailDto> getArticleById(int articleId) const;
 
         // 创建新文章
         [[nodiscard]] int64_t createArticle(const model::Article& article) const;

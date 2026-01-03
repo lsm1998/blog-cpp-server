@@ -28,6 +28,26 @@ namespace blogserver::api::article
             }
             const auto articles = this->articleService_.getArticleList(params);
             auto [articleList, total] = articles;
+
+            auto tagList = this->tagService_.tagList();
+            std::map<int64_t, std::string> tagMap;
+            for (const auto& v : tagList)
+            {
+                tagMap[v.id] = v.name;
+            }
+            // 填充tagNames
+            for (auto& article : articleList)
+            {
+                article.tagNames.clear();
+                for (const auto& tagId : article.tags)
+                {
+                    if (tagMap.contains(tagId))
+                    {
+                        article.tagNames.push_back(tagMap[tagId]);
+                    }
+                }
+            }
+
             auto result = cppkit::json::Json();
             result["list"] = articleList;
             result["total"] = total;
@@ -48,6 +68,23 @@ namespace blogserver::api::article
             auto opt = this->articleService_.getArticleById(static_cast<int>(std::stoull(id)));
             if (opt.has_value())
             {
+                // 返回文章内容时，同时返回标签名称
+                auto tagList = this->tagService_.tagList();
+                std::map<int64_t, std::string> tagMap;
+                for (const auto& v : tagList)
+                {
+                    tagMap[v.id] = v.name;
+                }
+                // 填充tagNames
+                std::vector<std::string> tagNames;
+                for (const auto& tagId : opt->tags)
+                {
+                    if (tagMap.contains(tagId))
+                    {
+                        tagNames.push_back(tagMap[tagId]);
+                    }
+                }
+                opt.value().tagNames = tagNames;
                 ok(writer, "Success", opt.value());
             }
             else

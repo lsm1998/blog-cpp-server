@@ -4,6 +4,7 @@
 #include <cppkit/http/server/http_response.hpp>
 #include "server/server_context.hpp"
 #include "service/article/article.hpp"
+#include "service/tag/tag.hpp"
 
 namespace blogserver::api::article
 {
@@ -12,7 +13,7 @@ namespace blogserver::api::article
     class ArticleHandler
     {
     public:
-        explicit ArticleHandler(server::ServerContext& ctx) : ctx(ctx), articleService_(ctx)
+        explicit ArticleHandler(server::ServerContext& ctx) : ctx(ctx), articleService_(ctx), tagService_(ctx)
         {
         }
 
@@ -36,5 +37,6 @@ namespace blogserver::api::article
     private:
         server::ServerContext& ctx;
         service::article::ArticleService articleService_;
+        service::tag::TagService tagService_;
     };
 } // namespace blogserver::server

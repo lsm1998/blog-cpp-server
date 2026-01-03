@@ -2,6 +2,7 @@
 
 #include "cppkit/reflection/reflection.hpp"
 #include <string>
+#include <cppkit/time.hpp>
 
 namespace blogserver::model
 {

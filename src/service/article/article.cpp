@@ -4,7 +4,7 @@
 
 namespace blogserver::service::article
 {
-    constexpr auto queryArticleByIdSql = "SELECT id,title,content,tags FROM article WHERE id = $1";
+    constexpr auto queryArticleByIdSql = "SELECT id,title,content,tags,created_at FROM article WHERE id = $1";
 
     constexpr auto insertArticleSql = "INSERT INTO article (title, content) VALUES ($1, $2) RETURNING id";
 
@@ -37,11 +37,12 @@ namespace blogserver::service::article
         return tagIds;
     }
 
-    std::tuple<std::vector<model::Article>, int> ArticleService::getArticleList(ArticleListParams& params) const
+    std::tuple<std::vector<model::dto::ArticleItemDto>, int> ArticleService::getArticleList(
+        ArticleListParams& params) const
     {
         const auto offset = (params.page - 1) * params.pageSize;
 
-        std::vector<model::Article> articles;
+        std::vector<model::dto::ArticleItemDto> articles;
         std::vector<std::string> args{};
 
         // 先根据tagNames获取tagIds
@@ -56,7 +57,7 @@ namespace blogserver::service::article
 
         std::ostringstream listSql;
         std::ostringstream countSql;
-        listSql << "SELECT id, title, content, tags FROM article";
+        listSql << "SELECT id,title,tags,created_at,summary FROM article";
         countSql << "SELECT COUNT(*) FROM article";
 
         if (!params.tagIds.empty())
@@ -87,15 +88,18 @@ namespace blogserver::service::article
         {
             model::Article article;
             article.id = row["id"].as<int64_t>();
+            article.summary = row["summary"].as<std::string>();
             article.title = row["title"].as<std::string>();
-            article.content = row["content"].as<std::string>();
             article.tags = row["tags"].as<std::vector<std::int64_t>>();
-            articles.push_back(article);
+            article.created_at = row["created_at"].as<std::string>();
+            model::dto::ArticleItemDto articleDto;
+            articleDto.setInfo(article);
+            articles.push_back(articleDto);
         }
         return {articles, total};
     }
 
-    std::optional<model::Article> ArticleService::getArticleById(int articleId) const
+    std::optional<model::dto::ArticleDetailDto> ArticleService::getArticleById(int articleId) const
     {
         const auto result = this->ctx.dbConnPool_->execute(queryArticleByIdSql, articleId);
         if (result.empty())
@@ -108,7 +112,10 @@ namespace blogserver::service::article
         article.title = row["title"].as<std::string>();
         article.content = row["content"].as<std::string>();
         article.tags = row["tags"].as<std::vector<std::int64_t>>();
-        return article;
+        article.created_at = row["created_at"].as<std::string>();
+        model::dto::ArticleDetailDto articleDto;
+        articleDto.setInfo(article);
+        return articleDto;
     }
 
     int64_t ArticleService::createArticle(const model::Article& article) const
@@ -127,9 +134,11 @@ namespace blogserver::service::article
 
     void ArticleService::updateArticle(const model::Article& article)
     {
+
     }
 
     void ArticleService::deleteArticle(std::vector<int64_t> articleId)
     {
+
     }
 }
