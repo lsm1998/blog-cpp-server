@@ -1,6 +1,7 @@
 #include "service/article/article.hpp"
-#include "cppkit/array.hpp"
-#include "cppkit/strings.hpp"
+#include <cppkit/array.hpp>
+#include <cppkit/strings.hpp>
+#include <cppkit/json/json_parser.hpp>
 #include <tuple>
 
 namespace blogserver::service::article
@@ -143,6 +144,13 @@ namespace blogserver::service::article
 
     std::optional<model::dto::ArticleDetailDto> ArticleService::getArticleById(int articleId) const
     {
+        const auto redisKey = "article:" + std::to_string(articleId);
+        const auto cachedData = ctx.redisClient_->get(redisKey);
+        if (cachedData.has_value())
+        {
+            return cppkit::json::fromJson<model::dto::ArticleDetailDto>(cachedData.value());
+        }
+
         const auto result = this->ctx.dbConnPool_->execute(queryArticleByIdSql, articleId);
         if (result.empty())
         {
@@ -157,6 +165,10 @@ namespace blogserver::service::article
         article.created_at = row["created_at"].as<std::string>();
         model::dto::ArticleDetailDto articleDto;
         articleDto.setInfo(article);
+
+        const auto articleJson = cppkit::json::stringify(articleDto);
+        ctx.redisClient_->set(redisKey, articleJson);
+        ctx.redisClient_->expire(redisKey, std::chrono::minutes(10));
         return articleDto;
     }
 

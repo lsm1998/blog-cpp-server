@@ -17,8 +17,7 @@ namespace blogserver::service::users
             const auto cachedData = ctx.redisClient_->get(redisKey);
             if (cachedData.has_value())
             {
-                // auto user = cppkit::json::fromJson<model::User>(cachedData.value());
-                // return user;
+                return cppkit::json::fromJson<model::User>(cachedData.value());
             }
             // 从数据库中获取用户资料
             const auto result = this->ctx.dbConnPool_->execute(queryUserProfileSql, username);
